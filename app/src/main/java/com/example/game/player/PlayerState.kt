@@ -62,6 +62,14 @@ data class PlayerState(
     val experience: Int = 0,
     val skillPoints: Int = 0,
     val memoryFragmentsCount: Int = 0,
+    val attackDamage: Float = 20f,
+    val currency: Int = 0,
+    val score: Int = 0,
+    val soulShieldActive: Boolean = false,
+    val shieldExpiryTime: Long = 0L,
+    val memoryFragments: Int = 0,
+    val forgetfulness: Int = 0,
+    val unlockedMemories: Set<String> = emptySet(),
 
     // Active Weaponry, Skins and Skills (Imported from other modular files in the package)
     val activeSkin: CharacterSkin = PlayerAppearance.NEON_CENTURION,
