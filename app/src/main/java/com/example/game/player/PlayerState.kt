@@ -63,7 +63,8 @@ data class PlayerState(
     val skillPoints: Int = 0,
     val memoryFragmentsCount: Int = 0,
 
-    // Active Weaponry and Skills (Imported from other modular files in the package)
+    // Active Weaponry, Skins and Skills (Imported from other modular files in the package)
+    val activeSkin: CharacterSkin = PlayerAppearance.NEON_CENTURION,
     val activeWeapon: Weapon = PlayerWeapons.PHOTON_SABER,
     val unlockedSkills: Set<SkillType> = setOf(SkillType.DASH)
 )

@@ -8,13 +8,13 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 
 /**
  * Extension functions for DrawScope to decouple rendering logic from game views.
- * You can effortlessly change the character's body shapes, visual effects (particles, slashes, glows, shields),
- * and dynamic animations directly in this file.
+ * Draws the character's base silhouette, accessories, active skins, and dynamic combat actions.
  */
 fun DrawScope.drawPlayerCharacter(state: PlayerState) {
     val centerX = state.x
     val centerY = state.y - state.radius
     val now = System.currentTimeMillis()
+    val skin = state.activeSkin
     
     // --- 1. Invincibility Blinking Aura ---
     val isInvincible = now < state.invincibleUntil
@@ -22,7 +22,7 @@ fun DrawScope.drawPlayerCharacter(state: PlayerState) {
         // Draw an outer protective halo with neon shimmer
         val pulseRadius = state.radius * 1.4f + (Math.sin(now.toDouble() / 100.0).toFloat() * 4f)
         drawCircle(
-            color = Color(0x77FFFFFF),
+            color = skin.accentColor.copy(alpha = 0.5f),
             radius = pulseRadius,
             center = Offset(centerX, centerY),
             style = Stroke(width = 3f)
@@ -38,60 +38,118 @@ fun DrawScope.drawPlayerCharacter(state: PlayerState) {
         val trailDistance = 35f
         val directionMultiplier = if (state.direction == Direction.RIGHT) 1f else -1f
         
-        // Draw primary ghostly trail
+        // Draw primary ghostly trail matching the active skin's theme
         drawCircle(
-            color = state.activeWeapon.color.copy(alpha = 0.45f),
+            color = skin.accentColor.copy(alpha = 0.45f),
             radius = state.radius * 1.3f,
             center = Offset(centerX - (trailDistance * directionMultiplier), centerY)
         )
         // Draw secondary outer trails
         drawCircle(
-            color = state.activeWeapon.color.copy(alpha = 0.20f),
+            color = skin.primaryColor.copy(alpha = 0.20f),
             radius = state.radius * 1.1f,
             center = Offset(centerX - (trailDistance * 2f * directionMultiplier), centerY)
         )
     }
 
-    // --- 3. Ground Level Ambient Shadow ---
+    // --- 3. Flowing Cape Physics ---
+    drawFlowingCape(centerX, centerY, state.radius, skin, state.direction, state.isDashing, state.vx, now)
+
+    // --- 4. Back Gear / Thrusters (Cyber Wings, Jetpack flames, Gravity orbs) ---
+    drawBackGear(centerX, centerY, state.radius, skin, state.isDashing, state.vy, now)
+
+    // --- 5. Ground Level Ambient Shadow ---
     drawOval(
-        color = Color.Black.copy(alpha = 0.45f),
+        color = skin.shadowColor,
         topLeft = Offset(centerX - state.radius * 0.9f, state.y - 4f),
         size = Size(state.radius * 1.8f, 8f)
     )
 
-    // --- 4. Main Character Body & Outer Wear ---
-    val bodyColor = if (state.isDashing) state.activeWeapon.color else Color(0xFFECEFF1)
-    
-    // Draw Suit Base
+    // --- 6. Main Character Base Suit (Secondary color, e.g. dark undersuit) ---
     drawCircle(
-        color = bodyColor,
+        color = skin.secondaryColor,
         radius = state.radius,
         center = Offset(centerX, centerY)
     )
     
-    // Draw Dark Cybernetic Armor Plate
+    // --- 7. Outer Chest Armor Plates (Primary color) ---
     drawCircle(
-        color = Color(0xFF37474F),  // Slate Gray Core
-        radius = state.radius * 0.7f,
-        center = Offset(centerX, centerY + 3f)
+        color = skin.primaryColor,
+        radius = state.radius * 0.75f,
+        center = Offset(centerX, centerY + 2f)
     )
 
-    // --- 5. Futuristic Visor / Electronic Eye (Indicates Direction) ---
-    val visorOffsetX = if (state.direction == Direction.RIGHT) (state.radius * 0.4f) else -(state.radius * 0.4f)
-    // Draw outer visor frame
-    drawRect(
-        color = Color(0xFF263238),
-        topLeft = Offset(centerX + visorOffsetX - 6f, centerY - 10f),
-        size = Size(12f, 12f)
-    )
-    // Draw inner neon state light matching the active weapon color!
-    drawRect(
-        color = state.activeWeapon.color,
-        topLeft = Offset(centerX + visorOffsetX - 3f, centerY - 8f),
-        size = Size(6f, 6f)
+    // Cosmic logo inside armor plates
+    drawCircle(
+        color = skin.secondaryColor,
+        radius = state.radius * 0.35f,
+        center = Offset(centerX, centerY + 4f)
     )
 
-    // --- 6. Active Shield Ring (If passive deflector/shield is active) ---
+    // --- 8. Headlights, Horns, Crown, and Celestial Glows ---
+    drawHeadGlow(centerX, centerY, state.radius, skin, now)
+
+    // --- 9. Futuristic Visor / Mask / Eye light ---
+    val dirMultiplier = if (state.direction == Direction.RIGHT) 1f else -1f
+    val visorOffsetX = (state.radius * 0.35f) * dirMultiplier
+    
+    when (skin.visorStyle) {
+        VisorStyle.CYBER_RECTANGLE -> {
+            // High tech rectangle visor
+            drawRect(
+                color = Color(0xFF263238),
+                topLeft = Offset(centerX + visorOffsetX - 8f, centerY - 8f),
+                size = Size(16f, 10f)
+            )
+            drawRect(
+                color = skin.accentColor,
+                topLeft = Offset(centerX + visorOffsetX - 5f, centerY - 6f),
+                size = Size(10f, 6f)
+            )
+        }
+        VisorStyle.CYCLOPS_BEAM -> {
+            // Solid continuous laser eye thread
+            drawLine(
+                color = skin.accentColor,
+                start = Offset(centerX + (state.radius * 0.2f * dirMultiplier), centerY - 4f),
+                end = Offset(centerX + (state.radius * 0.8f * dirMultiplier), centerY - 4f),
+                strokeWidth = 6f
+            )
+        }
+        VisorStyle.NINJA_MASK -> {
+            // Stealth fabric wrap with dual threatening diagonal eye points
+            val eyeX = centerX + visorOffsetX
+            // Left eye point
+            drawLine(
+                color = skin.accentColor,
+                start = Offset(eyeX - 5f, centerY - 6f),
+                end = Offset(eyeX, centerY - 4f),
+                strokeWidth = 3f
+            )
+            // Right eye point
+            drawLine(
+                color = skin.accentColor,
+                start = Offset(eyeX, centerY - 4f),
+                end = Offset(eyeX + 5f, centerY - 6f),
+                strokeWidth = 3f
+            )
+        }
+        VisorStyle.ROYAL_CROWN -> {
+            // Coronet of Light
+            val crownY = centerY - state.radius * 0.9f
+            drawRect(
+                color = skin.accentColor,
+                topLeft = Offset(centerX - 10f, crownY),
+                size = Size(20f, 4f)
+            )
+            // Draw spikes of gold crown
+            drawLine(color = skin.accentColor, start = Offset(centerX - 8f, crownY), end = Offset(centerX - 8f, crownY - 6f), strokeWidth = 3f)
+            drawLine(color = skin.accentColor, start = Offset(centerX, crownY), end = Offset(centerX, crownY - 9f), strokeWidth = 3f)
+            drawLine(color = skin.accentColor, start = Offset(centerX + 8f, crownY), end = Offset(centerX + 8f, crownY - 6f), strokeWidth = 3f)
+        }
+    }
+
+    // --- 10. Active Shield Core Ring (Kinetic Shield Skill) ---
     if (state.unlockedSkills.contains(SkillType.KINETIC_SHIELD)) {
         val rotationAngle = (now / 5) % 360f
         val shieldDist = state.radius * 1.8f
@@ -100,19 +158,19 @@ fun DrawScope.drawPlayerCharacter(state: PlayerState) {
         val oy = (Math.sin(sRad) * shieldDist).toFloat()
         
         drawCircle(
-            color = Color(0xFF2979FF), // Bright Blue
+            color = skin.accentColor, // match skin glow aura color
             radius = 8f,
             center = Offset(centerX + ox, centerY + oy)
         )
         drawCircle(
-            color = Color(0x332979FF),
+            color = skin.accentColor.copy(alpha = 0.25f),
             radius = state.radius * 1.9f,
             center = Offset(centerX, centerY),
             style = Stroke(width = 4f)
         )
     }
 
-    // --- 7. Weapon Dynamics & Attack Slashing Swipes ---
+    // --- 11. Weapon Slash Swipes & Dynamic Strikes ---
     if (state.isAttacking) {
         val dirSign = if (state.direction == Direction.RIGHT) 1f else -1f
         val weaponStartX = centerX + (state.radius * dirSign)
@@ -136,7 +194,7 @@ fun DrawScope.drawPlayerCharacter(state: PlayerState) {
             cap = Stroke.DefaultCap
         )
         
-        // Bright White Saber Core Core line
+        // Bright White Saber Core center line
         drawLine(
             color = Color.White,
             start = Offset(weaponStartX, centerY + 2f),

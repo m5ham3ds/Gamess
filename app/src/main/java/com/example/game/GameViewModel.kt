@@ -85,9 +85,20 @@ class GameViewModel : ViewModel() {
     }
 
     fun switchWeapon() {
-        _player.update { 
-            val newWep = if (it.activeWeapon == PlayerWeapons.PHOTON_SABER) PlayerWeapons.TITAN_HAMMER else PlayerWeapons.PHOTON_SABER
-            it.copy(activeWeapon = newWep)
+        _player.update { p ->
+            val allWeapons = PlayerWeapons.ALL_WEAPONS
+            val currentIndex = allWeapons.indexOfFirst { it.name == p.activeWeapon.name }
+            val nextIndex = if (currentIndex == -1) 0 else (currentIndex + 1) % allWeapons.size
+            p.copy(activeWeapon = allWeapons[nextIndex])
+        }
+    }
+
+    fun switchSkin() {
+        _player.update { p ->
+            val allSkins = PlayerAppearance.ALL_SKINS
+            val currentIndex = allSkins.indexOfFirst { it.id == p.activeSkin.id }
+            val nextIndex = if (currentIndex == -1) 0 else (currentIndex + 1) % allSkins.size
+            p.copy(activeSkin = allSkins[nextIndex])
         }
     }
 

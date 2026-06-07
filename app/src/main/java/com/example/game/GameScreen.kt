@@ -47,9 +47,19 @@ fun GameScreen(viewModel: GameViewModel) {
 
             // HUD
             Column(modifier = Modifier.padding(16.dp)) {
-                Text(text = "HP: ${player.hp.toInt()}/${player.maxHp.toInt()}", color = Color.Red)
-                Text(text = "EN: ${player.energy.toInt()}/${player.maxEnergy.toInt()}", color = Color.Cyan)
-                Text(text = "WEP: ${player.activeWeapon.name}", color = player.activeWeapon.color)
+                Text(text = "HP: ${player.hp.toInt()}/${player.maxHp.toInt()}", color = Color.Red, style = MaterialTheme.typography.titleMedium)
+                Text(text = "EN: ${player.energy.toInt()}/${player.maxEnergy.toInt()}", color = Color.Cyan, style = MaterialTheme.typography.titleMedium)
+                Text(text = "WEAPON: ${player.activeWeapon.name}", color = player.activeWeapon.color, style = MaterialTheme.typography.bodyLarge)
+                Spacer(modifier = Modifier.height(4.dp))
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = Color.Black.copy(alpha = 0.6f)),
+                    modifier = Modifier.widthIn(max = 280.dp)
+                ) {
+                    Column(modifier = Modifier.padding(8.dp)) {
+                        Text(text = "SKIN: ${player.activeSkin.name}", color = player.activeSkin.accentColor, style = MaterialTheme.typography.bodySmall)
+                        Text(text = player.activeSkin.description, color = Color.LightGray, style = MaterialTheme.typography.labelSmall)
+                    }
+                }
             }
 
             // Controls
@@ -73,7 +83,7 @@ fun GameScreen(viewModel: GameViewModel) {
                                     else -> false
                                 }
                             }
-                    ) { Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("<") } }
+                    ) { Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("<", style = MaterialTheme.typography.titleLarge) } }
                     
                     Spacer(modifier = Modifier.width(16.dp))
                     
@@ -87,7 +97,7 @@ fun GameScreen(viewModel: GameViewModel) {
                                     else -> false
                                 }
                             }
-                    ) { Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text(">") } }
+                    ) { Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text(">", style = MaterialTheme.typography.titleLarge) } }
                 }
 
                 // Actions
@@ -95,7 +105,9 @@ fun GameScreen(viewModel: GameViewModel) {
                     Row {
                         Button(onClick = { viewModel.dash() }) { Text("Dash") }
                         Spacer(modifier = Modifier.width(8.dp))
-                        Button(onClick = { viewModel.switchWeapon() }) { Text("Swp Wep") }
+                        Button(onClick = { viewModel.switchWeapon() }) { Text("Weapon") }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Button(onClick = { viewModel.switchSkin() }) { Text("Skin") }
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     Row {
