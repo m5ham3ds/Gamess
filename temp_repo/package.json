@@ -1,8 +1,0 @@
-{
-  "name": "game",
-  "version": "1.0.0",
-  "scripts": {
-    "build": "echo 'Project files restored successfully.'",
-    "dev": "echo 'Running project files directly...'"
-  }
-}
