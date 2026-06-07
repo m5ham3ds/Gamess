@@ -2,6 +2,7 @@ package com.example.game
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.game.player.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -85,7 +86,7 @@ class GameViewModel : ViewModel() {
 
     fun switchWeapon() {
         _player.update { 
-            val newWep = if (it.activeWeapon == PlayerConfig.DEFAULT_WEAPON) PlayerConfig.HEAVY_WEAPON else PlayerConfig.DEFAULT_WEAPON
+            val newWep = if (it.activeWeapon == PlayerWeapons.PHOTON_SABER) PlayerWeapons.TITAN_HAMMER else PlayerWeapons.PHOTON_SABER
             it.copy(activeWeapon = newWep)
         }
     }
