@@ -459,11 +459,13 @@ fun OracleConversationScreen(
                                 .fillMaxWidth()
                                 .height(48.dp)
                                 .clip(RoundedCornerShape(6.dp))
+                                .clickable {
+                                    if (feedback == null) {
+                                        viewModel.selectOracleChoice(idx)
+                                    }
+                                }
                                 .background(choiceBgColor)
                                 .border(1.dp, choiceBorderColor, RoundedCornerShape(6.dp))
-                                .clickable {
-                                    viewModel.selectOracleChoice(idx)
-                                }
                                 .padding(horizontal = 16.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween
@@ -501,27 +503,42 @@ fun OracleConversationScreen(
             Row(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Button(
-                    onClick = onClose,
-                    shape = RectangleShape,
-                    colors = ButtonDefaults.buttonColors(containerColor = VoidPrimary, contentColor = OutlineGray),
-                    modifier = Modifier.border(1.dp, OutlineGray)
-                ) {
-                    Text("انصراف • DEPART", fontSize = 12.sp)
-                }
+                if (feedback == null) {
+                    Button(
+                        onClick = onClose,
+                        shape = RectangleShape,
+                        colors = ButtonDefaults.buttonColors(containerColor = VoidPrimary, contentColor = OutlineGray),
+                        modifier = Modifier.border(1.dp, OutlineGray)
+                    ) {
+                        Text("انصراف • DEPART", fontSize = 12.sp)
+                    }
 
-                Button(
-                    onClick = {
-                        viewModel.submitSelectedOracleAnswer()
-                    },
-                    shape = RectangleShape,
-                    enabled = selectedIndex != -1 && feedback == null,
-                    border = BorderStroke(1.dp, BlightGold),
-                    colors = ButtonDefaults.buttonColors(containerColor = SurfaceDark, contentColor = BlightGold)
-                ) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Text("مبايعة الإجابة • ANSWER", fontSize = 12.sp)
-                        Icon(Icons.Filled.KeyboardArrowRight, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Button(
+                        onClick = {
+                            viewModel.submitSelectedOracleAnswer()
+                        },
+                        shape = RectangleShape,
+                        enabled = selectedIndex != -1,
+                        border = BorderStroke(1.dp, BlightGold),
+                        colors = ButtonDefaults.buttonColors(containerColor = SurfaceDark, contentColor = BlightGold)
+                    ) {
+                        Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Text("مبايعة الإجابة • ANSWER", fontSize = 12.sp)
+                            Icon(Icons.Filled.KeyboardArrowRight, contentDescription = null, modifier = Modifier.size(16.dp))
+                        }
+                    }
+                } else {
+                    Button(
+                        onClick = onClose,
+                        shape = RectangleShape,
+                        border = BorderStroke(1.dp, BlightGold),
+                        colors = ButtonDefaults.buttonColors(containerColor = SurfaceDark, contentColor = BlightGold),
+                        modifier = Modifier.fillMaxWidth(0.9f)
+                    ) {
+                        Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Text("موافق واستمرار • CONTINUE", fontSize = 13.sp)
+                            Icon(Icons.Filled.Settings, contentDescription = null, modifier = Modifier.size(16.dp))
+                        }
                     }
                 }
             }

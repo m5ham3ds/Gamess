@@ -346,43 +346,53 @@ fun GameViewCanvas(
                 )
             }
 
-            // --- DRAW PLAYER VESSEL ---
+            // --- DRAW PLAYER VESSEL (Celestial Echo of Light) ---
             val px = player.x * scaleX
             val py = player.y * scaleY
             val pr = player.radius * scaleX
 
-            // Player shadow aura
+            // Outer mystical glow aura
             drawCircle(
-                color = SurfaceDark.copy(alpha = 0.4f),
-                radius = pr * 1.4f,
+                color = EchoesBlue.copy(alpha = 0.35f),
+                radius = pr * 1.5f,
                 center = Offset(px, py)
             )
 
-            // Body vessel (Hollow Knight mask style with horns)
+            // Primary glowing core of light (Body)
             drawCircle(
-                color = RadianceWhite,
+                color = EchoesBlue,
                 radius = pr,
                 center = Offset(px, py)
             )
 
-            // Draw eye slots based on player directions
-            val eyeX1 = px + (if (player.direction == Direction.LEFT) -8f else 2f) * scaleX
-            val eyeX2 = px + (if (player.direction == Direction.LEFT) -2f else 8f) * scaleX
+            // Golden soul nucleus
+            drawCircle(
+                color = BlightGold,
+                radius = pr * 0.45f,
+                center = Offset(px, py)
+            )
+
+            // Expressive bright white eyes looking in the facing direction
+            val eyeLookOffset = if (player.direction == Direction.LEFT) -6f * scaleX else 6f * scaleX
+            val eyeX1 = px + eyeLookOffset - 3f * scaleX
+            val eyeX2 = px + eyeLookOffset + 3f * scaleX
             val eyeY = py - 2f * scaleY
 
-            drawCircle(color = VoidPrimary, radius = 2.5f * scaleX, center = Offset(eyeX1, eyeY))
-            drawCircle(color = VoidPrimary, radius = 2.5f * scaleX, center = Offset(eyeX2, eyeY))
+            drawCircle(color = RadianceWhite, radius = 3.5f * scaleX, center = Offset(eyeX1, eyeY))
+            drawCircle(color = RadianceWhite, radius = 3.5f * scaleX, center = Offset(eyeX2, eyeY))
 
-            // Horn shapes on top of head
-            val pathHorns = androidx.compose.ui.graphics.Path().apply {
-                moveTo(px - 10 * scaleX, py - 12 * scaleY)
-                lineTo(px - 14 * scaleX, py - 28 * scaleY)
-                lineTo(px - 4 * scaleX, py - 16 * scaleY)
-                moveTo(px + 10 * scaleX, py - 12 * scaleY)
-                lineTo(px + 14 * scaleX, py - 28 * scaleY)
-                lineTo(px + 4 * scaleX, py - 16 * scaleY)
+            // Celestial crown of light (original head ornament)
+            val pathCrown = androidx.compose.ui.graphics.Path().apply {
+                moveTo(px - 8 * scaleX, py - 14 * scaleY)
+                lineTo(px - 12 * scaleX, py - 24 * scaleY)
+                lineTo(px - 4 * scaleX, py - 18 * scaleY)
+                lineTo(px, py - 28 * scaleY)
+                lineTo(px + 4 * scaleX, py - 18 * scaleY)
+                lineTo(px + 12 * scaleX, py - 24 * scaleY)
+                lineTo(px + 8 * scaleX, py - 14 * scaleY)
+                close()
             }
-            drawPath(pathHorns, color = RadianceWhite)
+            drawPath(pathCrown, color = BlightGold)
 
             // --- SOUL SHIELD AURA ---
             if (player.soulShieldActive) {
